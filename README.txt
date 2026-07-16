@@ -1,30 +1,29 @@
-PULSE COUNTER PRO
+PULSE COUNTER PRO — WILD UPDATE
 
-FASTEST WAY TO PUBLISH WITH GITHUB PAGES
+NEW FEATURES
+- Daily goals and animated progress ring
+- Level and XP system
+- Undo button
+- Quick +5 and -5 controls
+- Hold + or - for rapid counting
+- Export and import backups
+- Combo timer that drains between taps
+- Lucky 7, every 25, and every 100 special celebrations
+- Daily-goal celebration
+- Arrow-key controls and Command-Z undo
+- All previous stats, awards, heatmap, confetti, sound, haptics, dark mode, and timestamp logs
 
-1. Go to github.com and sign in.
-2. Create a new public repository named:
-   pulse-counter-pro
-3. Choose “uploading an existing file.”
-4. Drag every file from this folder into GitHub.
-5. Click “Commit changes.”
-6. Open repository Settings → Pages.
-7. Under Build and deployment:
-   Source: Deploy from a branch
-   Branch: main
-   Folder: / (root)
-8. Click Save.
-9. Your site will appear at:
-   https://YOUR-USERNAME.github.io/pulse-counter-pro/
+HOW TO UPDATE GITHUB
+1. Open your Pulse-Counter-Pro repository.
+2. Click Add file → Upload files.
+3. Drag ALL files from this folder into GitHub.
+4. GitHub will warn that files already exist. That is expected.
+5. Scroll down and click Commit changes.
+6. Wait 1–2 minutes.
+7. Refresh your live GitHub Pages URL.
 
-INSTALL ON MAC
-Open the live site in Safari, then choose:
-File → Add to Dock
+IMPORTANT
+The service-worker cache version was changed, so the update should load automatically.
+If the old version appears, refresh the app twice or close and reopen the installed app.
 
-INSTALL ON IPHONE
-Open the live site in Safari, tap Share, then:
-Add to Home Screen
-
-DATA
-Counts, settings, achievements, and logs are stored locally in the browser.
-They do not automatically sync between devices.
+Your locally stored count history should remain intact because the update keeps the same storage key.

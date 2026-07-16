@@ -411,6 +411,165 @@
       to { transform: translate(var(--x),var(--y)) rotate(var(--r)) scale(.6); opacity:0; }
     }
 
+
+    .level-strip {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-strong) 62%, transparent);
+      border: 1px solid var(--line);
+    }
+    .level-badge {
+      min-width: 58px;
+      text-align: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      font-weight: 850;
+      font-size: .82rem;
+    }
+    .level-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+    }
+    .level-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .35s cubic-bezier(.2,.8,.2,1);
+    }
+    .level-xp { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+
+    .quick-actions {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .quick-btn {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: color-mix(in srgb, var(--surface-strong) 62%, transparent);
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform .12s ease, background .18s ease;
+    }
+    .quick-btn:hover { background: var(--surface-strong); }
+    .quick-btn:active { transform: scale(.93); }
+    .quick-btn.accent {
+      background: color-mix(in srgb, var(--accent) 14%, var(--surface-strong));
+      color: var(--accent);
+    }
+
+    .goal-card {
+      margin-top: 14px;
+      border-radius: 26px;
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+    }
+    .goal-ring {
+      --pct: 0;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--accent) calc(var(--pct) * 1%), color-mix(in srgb, var(--text) 8%, transparent) 0);
+      position: relative;
+    }
+    .goal-ring::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      background: var(--surface-strong);
+    }
+    .goal-ring span { position: relative; z-index: 1; font-weight: 850; font-size: .82rem; }
+    .goal-copy strong { display: block; }
+    .goal-copy span { display: block; color: var(--muted); font-size: .84rem; margin-top: 3px; }
+
+    .combo-meter {
+      height: 6px;
+      margin-top: 9px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .combo-meter.show { opacity: 1; }
+    .combo-meter-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--warn), var(--accent-2));
+      transform-origin: left;
+    }
+    .combo-meter-fill.drain { animation: comboDrain 2.4s linear forwards; }
+    @keyframes comboDrain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+    .screen-flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 24;
+      opacity: 0;
+      background: radial-gradient(circle at center, color-mix(in srgb, var(--accent) 30%, transparent), transparent 60%);
+    }
+    .screen-flash.go { animation: screenFlash .55s ease; }
+    @keyframes screenFlash { 0% { opacity: 0; } 32% { opacity: 1; } 100% { opacity: 0; } }
+
+    .mega-word {
+      position: fixed;
+      left: 50%;
+      top: 26%;
+      transform: translate(-50%, -50%) scale(.65) rotate(-5deg);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 36;
+      font-size: clamp(2.6rem, 11vw, 6rem);
+      font-weight: 950;
+      letter-spacing: -.06em;
+      color: var(--text);
+      text-shadow: 0 10px 40px rgba(0,0,0,.18);
+    }
+    .mega-word.go { animation: megaWord 1s cubic-bezier(.2,.9,.25,1) both; }
+    @keyframes megaWord {
+      0% { opacity: 0; transform: translate(-50%,-50%) scale(.55) rotate(-8deg); }
+      25%,70% { opacity: 1; transform: translate(-50%,-50%) scale(1.08) rotate(2deg); }
+      100% { opacity: 0; transform: translate(-50%,-70%) scale(.95) rotate(0); }
+    }
+
+    .field-input {
+      width: 110px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 9px 10px;
+      font: inherit;
+    }
+
+    @media (max-width: 520px) {
+      .quick-actions { grid-template-columns: repeat(3, 1fr); }
+      .goal-card { grid-template-columns: auto 1fr; }
+      .goal-card .text-btn { grid-column: 1 / -1; }
+      .level-strip { grid-template-columns: auto 1fr; }
+      .level-xp { grid-column: 2; }
+    }
+
     @media (max-width: 700px) {
       .topbar { grid-template-columns: 1fr auto; }
       .brand { display:none; }
@@ -467,12 +626,21 @@
           <div class="mini-card"><div class="mini-label">Total taps</div><div id="tapsMini" class="mini-value">0</div></div>
         </div>
 
+
+        <div class="level-strip">
+          <div id="levelBadge" class="level-badge">LVL 1</div>
+          <div class="level-track"><div id="levelBar" class="level-bar"></div></div>
+          <div id="levelXp" class="level-xp">0 / 25 XP</div>
+        </div>
+
         <div class="counter-zone">
           <button id="minusBtn" class="counter-btn minus" aria-label="Subtract one">−</button>
           <div class="count-wrap">
             <div id="count" class="count" aria-live="polite">0</div>
             <div id="message" class="message">Ready when you are.</div>
             <div id="combo" class="combo">🔥 0 combo</div>
+            <div id="comboMeter" class="combo-meter"><div id="comboMeterFill" class="combo-meter-fill"></div></div>
+
           </div>
           <button id="plusBtn" class="counter-btn plus" aria-label="Add one">+</button>
         </div>
@@ -480,6 +648,14 @@
         <div class="progress-wrap">
           <div class="progress-head"><span>Next celebration</span><span id="progressLabel">0 / 10</span></div>
           <div class="track"><div id="progressBar" class="bar"></div></div>
+        </div>
+
+        <div class="quick-actions">
+          <button id="minusFiveBtn" class="quick-btn">−5</button>
+          <button id="undoBtn" class="quick-btn">Undo</button>
+          <button id="plusFiveBtn" class="quick-btn accent">+5</button>
+          <button id="goalBtn" class="quick-btn">Goal</button>
+          <button id="exportBtn" class="quick-btn">Export</button>
         </div>
       </div>
 
@@ -489,6 +665,15 @@
           <button class="text-btn" id="resetBtn">Reset</button>
         </div>
         <div id="log" class="log"></div>
+      </section>
+
+      <section class="goal-card glass">
+        <div id="goalRing" class="goal-ring"><span id="goalPct">0%</span></div>
+        <div class="goal-copy">
+          <strong>Daily goal</strong>
+          <span id="goalText">0 of 50 taps today</span>
+        </div>
+        <button id="editGoalBtn" class="text-btn">Edit goal</button>
       </section>
     </section>
 
@@ -518,6 +703,8 @@
   </main>
 
   <div id="fx"></div>
+  <div id="screenFlash" class="screen-flash"></div>
+  <div id="megaWord" class="mega-word">WILD.</div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="milestone" class="milestone" aria-hidden="true">
     <div class="milestone-card"><strong id="milestoneTitle">10!</strong><span>Milestone unlocked</span></div>
@@ -529,6 +716,10 @@
       <div class="setting-row"><span>Sound effects</span><button id="soundToggle" class="switch on" role="switch" aria-checked="true"></button></div>
       <div class="setting-row"><span>Haptics</span><button id="hapticToggle" class="switch on" role="switch" aria-checked="true"></button></div>
       <div class="setting-row"><span>Particles</span><button id="particleToggle" class="switch on" role="switch" aria-checked="true"></button></div>
+      <div class="setting-row"><span>Daily goal</span><input id="goalInput" class="field-input" type="number" min="1" max="10000" step="1"></div>
+      <div class="setting-row"><span>Import backup</span><button id="importBtn" class="text-btn">Choose file</button></div>
+      <input id="importInput" type="file" accept="application/json" hidden>
+
       <div class="dialog-actions"><button id="closeSettings" class="text-btn primary">Done</button></div>
     </div>
   </dialog>
@@ -536,7 +727,7 @@
   <script>
     const initial = {
       count: 0, log: [], totalTaps: 0, highest: 0, milestones: 0,
-      bestCombo: 0, combo: 0, lastAction: null, unlocked: [],
+      bestCombo: 0, combo: 0, lastAction: null, unlocked: [], dailyGoal: 50,
       theme: 'light', sound: true, haptics: true, particles: true
     };
     const saved = JSON.parse(localStorage.getItem('pulseProState') || '{}');
@@ -580,12 +771,19 @@
       document.querySelector('meta[name="theme-color"]').setAttribute('content', state.theme === 'dark' ? '#0d0d0f' : '#f6f6f3');
     }
 
-    function todayCount() {
+    function todayEntries() {
       const now = new Date();
-      return state.log.filter(e => {
-        const d = new Date(e.time);
-        return d.toDateString() === now.toDateString();
-      }).length;
+      return state.log.filter(e => new Date(e.time).toDateString() === now.toDateString());
+    }
+
+    function todayCount() {
+      return todayEntries().length;
+    }
+
+    function levelInfo() {
+      const level = Math.floor(state.totalTaps / 25) + 1;
+      const intoLevel = state.totalTaps % 25;
+      return { level, intoLevel, needed: 25 };
     }
 
     function updateAchievements() {
@@ -653,6 +851,19 @@
       $('statHighest').textContent = state.highest;
       $('statTaps').textContent = state.totalTaps;
       $('statMilestones').textContent = state.milestones;
+
+      const lvl = levelInfo();
+      $('levelBadge').textContent = `LVL ${lvl.level}`;
+      $('levelBar').style.width = `${(lvl.intoLevel / lvl.needed) * 100}%`;
+      $('levelXp').textContent = `${lvl.intoLevel} / ${lvl.needed} XP`;
+
+      const today = todayCount();
+      const goal = Math.max(1, Number(state.dailyGoal) || 50);
+      const pct = Math.min(100, Math.round((today / goal) * 100));
+      $('goalRing').style.setProperty('--pct', pct);
+      $('goalPct').textContent = `${pct}%`;
+      $('goalText').textContent = `${today} of ${goal} taps today`;
+      $('goalInput').value = goal;
 
       const mod = ((state.count % 10) + 10) % 10;
       $('progressBar').style.width = `${mod * 10}%`;
@@ -733,6 +944,116 @@
       showToast.timer = setTimeout(()=>toast.classList.remove('show'),1700);
     }
 
+
+    let comboTimer;
+
+    function restartComboMeter() {
+      clearTimeout(comboTimer);
+      const meter = $('comboMeter');
+      const fill = $('comboMeterFill');
+      meter.classList.add('show');
+      fill.classList.remove('drain');
+      void fill.offsetWidth;
+      fill.classList.add('drain');
+      comboTimer = setTimeout(() => {
+        state.combo = 0;
+        state.lastAction = null;
+        meter.classList.remove('show');
+        comboEl.classList.remove('show');
+        save();
+      }, 2400);
+    }
+
+    function flashWord(text) {
+      const el = $('megaWord');
+      el.textContent = text;
+      el.classList.remove('go');
+      void el.offsetWidth;
+      el.classList.add('go');
+    }
+
+    function screenPulse() {
+      const el = $('screenFlash');
+      el.classList.remove('go');
+      void el.offsetWidth;
+      el.classList.add('go');
+    }
+
+    function specialCelebration() {
+      if (state.count !== 0 && Math.abs(state.count) % 100 === 0) {
+        flashWord('LEGENDARY.');
+        screenPulse();
+        burst(plusBtn, 140, 3.2);
+        buzz([50,35,90,35,140]);
+        return;
+      }
+      if (state.count !== 0 && Math.abs(state.count) % 25 === 0) {
+        flashWord('QUARTER CENTURY.');
+        screenPulse();
+        burst(plusBtn, 70, 2.2);
+        return;
+      }
+      if (Math.abs(state.count) % 7 === 0 && state.count !== 0) {
+        flashWord('LUCKY 7.');
+        burst(state.count > 0 ? plusBtn : minusBtn, 28, 1.35);
+      }
+    }
+
+    function recomputeAfterUndo() {
+      state.count = state.log.length ? state.log[0].value : 0;
+      state.totalTaps = state.log.length;
+      state.highest = Math.max(0, ...state.log.map(e => e.value));
+      state.milestones = state.log.filter(e => e.value > 0 && e.value % 10 === 0).length;
+      state.bestCombo = Math.min(state.bestCombo, state.totalTaps);
+      state.combo = 0;
+      state.lastAction = null;
+    }
+
+    function undoLast() {
+      if (!state.log.length) {
+        showToast('Nothing to undo');
+        return;
+      }
+      state.log.shift();
+      recomputeAfterUndo();
+      messageEl.textContent = 'Last move erased.';
+      save();
+      render();
+      showToast('Undone');
+      buzz(12);
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pulse-counter-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Backup exported');
+    }
+
+    function bindHold(button, delta) {
+      let timeout;
+      let interval;
+      const start = () => {
+        timeout = setTimeout(() => {
+          interval = setInterval(() => change(delta), 115);
+        }, 420);
+      };
+      const stop = () => {
+        clearTimeout(timeout);
+        clearInterval(interval);
+      };
+      button.addEventListener('pointerdown', start);
+      button.addEventListener('pointerup', stop);
+      button.addEventListener('pointercancel', stop);
+      button.addEventListener('pointerleave', stop);
+    }
+
     function change(delta) {
       state.count += delta;
       state.totalTaps++;
@@ -745,6 +1066,7 @@
 
       state.log.unshift({delta, value:state.count, time:Date.now()});
       state.log = state.log.slice(0,500);
+      restartComboMeter();
 
       const positiveMilestone = state.count > 0 && state.count % 10 === 0;
       if (positiveMilestone) state.milestones++;
@@ -763,10 +1085,26 @@
       burst(delta > 0 ? plusBtn : minusBtn, delta > 0 ? 14 : 7, 1);
 
       if (positiveMilestone) fullConfetti();
+      specialCelebration();
+
+      if (todayCount() === Number(state.dailyGoal)) {
+        flashWord('GOAL CRUSHED.');
+        fullConfetti();
+        showToast('Daily goal complete');
+      }
     }
 
     plusBtn.addEventListener('click',()=>change(1));
     minusBtn.addEventListener('click',()=>change(-1));
+    bindHold(plusBtn, 1);
+    bindHold(minusBtn, -1);
+
+    $('plusFiveBtn').addEventListener('click',()=>change(5));
+    $('minusFiveBtn').addEventListener('click',()=>change(-5));
+    $('undoBtn').addEventListener('click',undoLast);
+    $('exportBtn').addEventListener('click',exportBackup);
+    $('goalBtn').addEventListener('click',()=>$('settingsDialog').showModal());
+    $('editGoalBtn').addEventListener('click',()=>$('settingsDialog').showModal());
 
     $('resetBtn').addEventListener('click',()=>{
       if (!confirm('Reset the count and clear the full log?')) return;
@@ -787,7 +1125,30 @@
     });
 
     $('settingsBtn').addEventListener('click',()=>$('settingsDialog').showModal());
-    $('closeSettings').addEventListener('click',()=>$('settingsDialog').close());
+    $('closeSettings').addEventListener('click',()=>{
+      state.dailyGoal = Math.max(1, Number($('goalInput').value) || 50);
+      save();
+      render();
+      $('settingsDialog').close();
+    });
+
+    $('importBtn').addEventListener('click',()=>$('importInput').click());
+    $('importInput').addEventListener('change', async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const imported = JSON.parse(await file.text());
+        Object.assign(state, initial, imported);
+        updateAchievements();
+        save();
+        render();
+        showToast('Backup imported');
+        $('settingsDialog').close();
+      } catch {
+        alert('That backup file could not be read.');
+      }
+      event.target.value = '';
+    });
 
     function bindToggle(id,key) {
       const el=$(id);
@@ -805,8 +1166,12 @@
     bindToggle('particleToggle','particles');
 
     document.addEventListener('keydown',e=>{
-      if (e.key==='+' || e.key==='=') change(1);
-      if (e.key==='-' || e.key==='_') change(-1);
+      if (e.key==='+' || e.key==='=' || e.key==='ArrowUp') change(1);
+      if (e.key==='-' || e.key==='_' || e.key==='ArrowDown') change(-1);
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='z') {
+        e.preventDefault();
+        undoLast();
+      }
     });
 
     updateAchievements();
