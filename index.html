@@ -570,6 +570,182 @@
       .level-xp { grid-column: 2; }
     }
 
+
+    .horse-challenge {
+      margin-top: 14px;
+      padding: 18px 20px 20px;
+      border-radius: 26px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .horse-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .horse-head strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .horse-head span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .hour-pill {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .race-track-wrap {
+      position: relative;
+      padding: 26px 18px 4px;
+    }
+
+    .race-track {
+      height: 16px;
+      border-radius: 999px;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--text) 7%, transparent) 0 12px,
+          transparent 12px 23px
+        ),
+        color-mix(in srgb, var(--text) 5%, transparent);
+      border: 1px solid var(--line);
+      overflow: visible;
+      position: relative;
+    }
+
+    .race-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .55s cubic-bezier(.2,.85,.2,1);
+      opacity: .82;
+    }
+
+    .horse-runner {
+      position: absolute;
+      left: 0%;
+      top: 50%;
+      transform: translate(-50%, -68%);
+      font-size: 2.3rem;
+      line-height: 1;
+      filter: drop-shadow(0 7px 10px rgba(0,0,0,.14));
+      transition: left .58s cubic-bezier(.2,.9,.2,1);
+      z-index: 3;
+      user-select: none;
+    }
+
+    .horse-runner.running {
+      animation: horseGallop .34s ease-in-out infinite alternate;
+    }
+
+    @keyframes horseGallop {
+      from { transform: translate(-50%, -72%) rotate(-2deg); }
+      to { transform: translate(-50%, -58%) rotate(2deg); }
+    }
+
+    .finish-line {
+      position: absolute;
+      right: 0;
+      top: -24px;
+      width: 5px;
+      height: 64px;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          var(--text) 0 7px,
+          var(--surface-strong) 7px 14px
+        );
+      border-radius: 2px;
+      box-shadow: 0 3px 9px rgba(0,0,0,.12);
+    }
+
+    .finish-flag {
+      position: absolute;
+      right: -4px;
+      top: -39px;
+      font-size: 1.55rem;
+    }
+
+    .race-markers {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: .76rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .horse-status {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .horse-count {
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .horse-message {
+      color: var(--muted);
+      font-size: .82rem;
+      text-align: right;
+    }
+
+    .horse-challenge.finished .horse-runner {
+      animation: horseVictory .7s cubic-bezier(.2,.9,.2,1) infinite alternate;
+    }
+
+    .horse-challenge.finished .race-track {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+
+    @keyframes horseVictory {
+      from { transform: translate(-50%, -73%) rotate(-5deg) scale(1); }
+      to { transform: translate(-50%, -58%) rotate(5deg) scale(1.15); }
+    }
+
+    .horse-spark {
+      position: absolute;
+      pointer-events: none;
+      z-index: 4;
+      font-size: 1rem;
+      animation: horseSpark .85s ease-out forwards;
+    }
+
+    @keyframes horseSpark {
+      from { opacity: 1; transform: translate(0,0) scale(.6) rotate(0); }
+      to { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(1.2) rotate(var(--sr)); }
+    }
+
+    @media (max-width: 520px) {
+      .horse-challenge { padding: 16px; }
+      .horse-head { align-items: center; }
+      .horse-runner { font-size: 2rem; }
+      .horse-message { max-width: 52%; }
+    }
+
     @media (max-width: 700px) {
       .topbar { grid-template-columns: 1fr auto; }
       .brand { display:none; }
@@ -665,6 +841,37 @@
           <button class="text-btn" id="resetBtn">Reset</button>
         </div>
         <div id="log" class="log"></div>
+      </section>
+
+
+      <section id="horseChallenge" class="horse-challenge glass" aria-label="Hourly horse race challenge">
+        <div class="horse-head">
+          <div>
+            <strong>Hourly Horse Race</strong>
+            <span>Get 15 positive counts before the hour resets.</span>
+          </div>
+          <div id="hourCountdown" class="hour-pill">59:59 left</div>
+        </div>
+
+        <div class="race-track-wrap">
+          <div class="race-track">
+            <div id="raceFill" class="race-fill"></div>
+            <div id="horseRunner" class="horse-runner running" role="img" aria-label="Running horse">🐎</div>
+            <div class="finish-line" aria-hidden="true"></div>
+            <div class="finish-flag" aria-hidden="true">🏁</div>
+          </div>
+          <div class="race-markers">
+            <span>0</span>
+            <span>5</span>
+            <span>10</span>
+            <span>15</span>
+          </div>
+        </div>
+
+        <div class="horse-status">
+          <div id="horseCount" class="horse-count">0 / 15</div>
+          <div id="horseMessage" class="horse-message">The starting gate is open.</div>
+        </div>
       </section>
 
       <section class="goal-card glass">
@@ -842,6 +1049,98 @@
       `).join('');
     }
 
+
+    const HOURLY_GOAL = 15;
+    let lastRenderedHourKey = '';
+
+    function currentHourKey(date = new Date()) {
+      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
+    }
+
+    function hourlyPositiveCount() {
+      const key = currentHourKey();
+      return state.log.reduce((sum, entry) => {
+        if (currentHourKey(new Date(entry.time)) !== key || entry.delta <= 0) return sum;
+        return sum + entry.delta;
+      }, 0);
+    }
+
+    function secondsUntilNextHour() {
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(now.getHours() + 1, 0, 0, 0);
+      return Math.max(0, Math.floor((next - now) / 1000));
+    }
+
+    function formatCountdown(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(minutes).padStart(2,'0')}:${String(secs).padStart(2,'0')} left`;
+    }
+
+    function horseSparkBurst() {
+      const track = $('horseChallenge');
+      const horse = $('horseRunner');
+      const trackRect = track.getBoundingClientRect();
+      const horseRect = horse.getBoundingClientRect();
+
+      for (let i = 0; i < 18; i++) {
+        const spark = document.createElement('span');
+        spark.className = 'horse-spark';
+        spark.textContent = i % 3 === 0 ? '⭐' : i % 3 === 1 ? '✨' : '💨';
+        spark.style.left = `${horseRect.left - trackRect.left + horseRect.width / 2}px`;
+        spark.style.top = `${horseRect.top - trackRect.top + horseRect.height / 2}px`;
+        spark.style.setProperty('--sx', `${(Math.random() - .5) * 150}px`);
+        spark.style.setProperty('--sy', `${-20 - Math.random() * 90}px`);
+        spark.style.setProperty('--sr', `${Math.random() * 240 - 120}deg`);
+        track.appendChild(spark);
+        setTimeout(() => spark.remove(), 900);
+      }
+    }
+
+    function renderHorseChallenge(allowCelebration = false) {
+      const count = hourlyPositiveCount();
+      const capped = Math.min(HOURLY_GOAL, count);
+      const pct = (capped / HOURLY_GOAL) * 100;
+      const challenge = $('horseChallenge');
+      const wasFinished = challenge.classList.contains('finished');
+      const isFinished = count >= HOURLY_GOAL;
+
+      $('raceFill').style.width = `${pct}%`;
+      $('horseRunner').style.left = `${pct}%`;
+      $('horseCount').textContent = `${capped} / ${HOURLY_GOAL}`;
+      challenge.classList.toggle('finished', isFinished);
+
+      if (isFinished) {
+        $('horseMessage').textContent = 'Finish line demolished. Absolute stallion behavior.';
+      } else if (count >= 10) {
+        $('horseMessage').textContent = `${HOURLY_GOAL - count} left — final stretch.`;
+      } else if (count >= 5) {
+        $('horseMessage').textContent = `${HOURLY_GOAL - count} left — the horse is cooking.`;
+      } else if (count > 0) {
+        $('horseMessage').textContent = `${HOURLY_GOAL - count} left — off to the races.`;
+      } else {
+        $('horseMessage').textContent = 'The starting gate is open.';
+      }
+
+      if (allowCelebration && isFinished && !wasFinished) {
+        horseSparkBurst();
+        flashWord('PHOTO FINISH.');
+        fullConfetti();
+        showToast('Hourly goal crushed 🐎');
+      }
+    }
+
+    function tickHourlyChallenge() {
+      const key = currentHourKey();
+      if (lastRenderedHourKey && key !== lastRenderedHourKey) {
+        renderHorseChallenge(false);
+        showToast('New hour. Horse back to the gate.');
+      }
+      lastRenderedHourKey = key;
+      $('hourCountdown').textContent = formatCountdown(secondsUntilNextHour());
+    }
+
     function render() {
       countEl.textContent = state.count;
       $('todayMini').textContent = todayCount();
@@ -875,6 +1174,7 @@
       renderLog();
       renderHeatmap();
       renderAchievements();
+      renderHorseChallenge(false);
       applyTheme();
     }
 
@@ -1085,6 +1385,7 @@
       burst(delta > 0 ? plusBtn : minusBtn, delta > 0 ? 14 : 7, 1);
 
       if (positiveMilestone) fullConfetti();
+      renderHorseChallenge(true);
       specialCelebration();
 
       if (todayCount() === Number(state.dailyGoal)) {
@@ -1177,6 +1478,9 @@
     updateAchievements();
     save();
     render();
+    lastRenderedHourKey = currentHourKey();
+    tickHourlyChallenge();
+    setInterval(tickHourlyChallenge, 1000);
 
     if ('serviceWorker' in navigator) {
       addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));

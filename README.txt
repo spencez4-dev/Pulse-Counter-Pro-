@@ -1,29 +1,27 @@
-PULSE COUNTER PRO — WILD UPDATE
+PULSE COUNTER PRO — HOURLY HORSE UPDATE
 
-NEW FEATURES
-- Daily goals and animated progress ring
-- Level and XP system
-- Undo button
-- Quick +5 and -5 controls
-- Hold + or - for rapid counting
-- Export and import backups
-- Combo timer that drains between taps
-- Lucky 7, every 25, and every 100 special celebrations
-- Daily-goal celebration
-- Arrow-key controls and Command-Z undo
-- All previous stats, awards, heatmap, confetti, sound, haptics, dark mode, and timestamp logs
+NEW FEATURE
+- A running horse advances across a racetrack toward an hourly target of 15.
+- Positive counts move the horse.
+- +5 moves the horse five spaces.
+- Negative counts do not move the horse backward.
+- At 15, the horse reaches the finish line and triggers a celebration.
+- The hourly horse challenge automatically resets at the top of every clock hour.
+- A live countdown shows the time remaining in the current hour.
+- Your main count, lifetime log, stats, XP, goals, awards, and achievements do NOT reset.
 
 HOW TO UPDATE GITHUB
-1. Open your Pulse-Counter-Pro repository.
-2. Click Add file → Upload files.
-3. Drag ALL files from this folder into GitHub.
-4. GitHub will warn that files already exist. That is expected.
-5. Scroll down and click Commit changes.
-6. Wait 1–2 minutes.
-7. Refresh your live GitHub Pages URL.
+1. Unzip this folder.
+2. Open your Pulse-Counter-Pro repository.
+3. Click Add file → Upload files.
+4. Drag all files from this folder into GitHub.
+5. Confirm replacement of the existing files.
+6. Click Commit changes.
+7. Wait 1–2 minutes and reload the GitHub Pages app.
 
-IMPORTANT
-The service-worker cache version was changed, so the update should load automatically.
-If the old version appears, refresh the app twice or close and reopen the installed app.
+CACHE NOTE
+The service-worker version has been changed.
+If the old app appears, refresh twice or fully close and reopen the installed app.
 
-Your locally stored count history should remain intact because the update keeps the same storage key.
+DATA NOTE
+This update keeps the same browser storage key, so existing local history should remain.
