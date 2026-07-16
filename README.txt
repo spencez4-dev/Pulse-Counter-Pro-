@@ -1,27 +1,38 @@
-PULSE COUNTER PRO — HOURLY HORSE UPDATE
+PULSE COUNTER PRO — MINI RACECOURSE UPDATE
 
-NEW FEATURE
-- A running horse advances across a racetrack toward an hourly target of 15.
-- Positive counts move the horse.
-- +5 moves the horse five spaces.
-- Negative counts do not move the horse backward.
-- At 15, the horse reaches the finish line and triggers a celebration.
-- The hourly horse challenge automatically resets at the top of every clock hour.
-- A live countdown shows the time remaining in the current hour.
-- Your main count, lifetime log, stats, XP, goals, awards, and achievements do NOT reset.
+NEW FEATURES
+- Full miniature racecourse instead of a plain horse progress bar
+- Animated galloping horse
+- Dust clouds on every positive count
+- Moving clouds, fence, lane markings, and finish banner
+- Trophy celebration at 15
+- Hourly race wins are tracked permanently
+- A Stable page with unlockable horse skins
+- Unlocks:
+  Mustang: starting horse
+  Unicorn: 3 wins
+  Zebra: 7 wins
+  Ghost Horse: 12 wins
+  Skeleton Horse: 20 wins
+  Royal Racer: 30 wins
+- Horse selection is saved
+- The race resets automatically at the top of every hour
+- Main count, stats, history, XP, achievements, and daily goals remain intact
 
 HOW TO UPDATE GITHUB
 1. Unzip this folder.
-2. Open your Pulse-Counter-Pro repository.
+2. Open the Pulse-Counter-Pro repository.
 3. Click Add file → Upload files.
 4. Drag all files from this folder into GitHub.
-5. Confirm replacement of the existing files.
+5. Replace the existing files.
 6. Click Commit changes.
-7. Wait 1–2 minutes and reload the GitHub Pages app.
+7. Wait about 1–2 minutes.
+8. Reload the GitHub Pages app.
 
-CACHE NOTE
-The service-worker version has been changed.
-If the old app appears, refresh twice or fully close and reopen the installed app.
+IF THE OLD VERSION APPEARS
+- Close and reopen the installed app.
+- Or refresh the live website twice.
+- The service worker cache was bumped to a new version.
 
-DATA NOTE
-This update keeps the same browser storage key, so existing local history should remain.
+DATA
+Existing local history should stay because the same browser storage key remains in use.
