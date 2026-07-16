@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f6f3">
+  <meta name="description" content="A premium, installable counting app with streaks, achievements, stats, heatmap, confetti, and timestamp logs.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Pulse Counter Pro</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f6f3;
+      --surface: rgba(255,255,255,.78);
+      --surface-strong: #ffffff;
+      --text: #101010;
+      --muted: #77756f;
+      --line: rgba(16,16,16,.09);
+      --accent: #6e5cff;
+      --accent-2: #ff4f91;
+      --good: #19b86a;
+      --warn: #ff9f0a;
+      --shadow: 0 24px 70px rgba(0,0,0,.09);
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0d0d0f;
+      --surface: rgba(25,25,29,.82);
+      --surface-strong: #19191d;
+      --text: #f7f7f8;
+      --muted: #9b9ba2;
+      --line: rgba(255,255,255,.09);
+      --accent: #8c7cff;
+      --accent-2: #ff6ca7;
+      --good: #39d17d;
+      --warn: #ffb340;
+      --shadow: 0 28px 90px rgba(0,0,0,.4);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100dvh;
+      background:
+        radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 34%),
+        radial-gradient(circle at 84% 8%, color-mix(in srgb, var(--accent-2) 8%, transparent), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: background .25s ease, color .25s ease;
+    }
+
+    button { font: inherit; color: inherit; }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 4px; }
+
+    .app {
+      width: min(100%, 860px);
+      margin: 0 auto;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+      min-height: 100dvh;
+    }
+
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      font-weight: 780;
+      letter-spacing: -.03em;
+      font-size: 1.05rem;
+    }
+
+    .top-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform .14s ease, background .2s ease;
+    }
+    .icon-btn:active { transform: scale(.9); }
+    .icon-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-strong) 65%, transparent);
+      border: 1px solid var(--line);
+    }
+    .tab {
+      border: 0;
+      background: transparent;
+      padding: 9px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    .tab.active {
+      background: var(--surface-strong);
+      color: var(--text);
+      box-shadow: 0 4px 14px rgba(0,0,0,.06);
+    }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeUp .25s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .counter-shell {
+      border-radius: 34px;
+      min-height: 500px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .mini-card {
+      border-radius: 18px;
+      padding: 13px 14px;
+      background: color-mix(in srgb, var(--surface-strong) 66%, transparent);
+      border: 1px solid var(--line);
+    }
+    .mini-label { color: var(--muted); font-size: .78rem; }
+    .mini-value { margin-top: 3px; font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .counter-zone {
+      display: grid;
+      grid-template-columns: 1fr minmax(180px, 300px) 1fr;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+      min-height: 350px;
+    }
+
+    .count-wrap { text-align: center; position: relative; }
+    .count {
+      font-size: clamp(7rem, 24vw, 13rem);
+      line-height: .86;
+      font-weight: 690;
+      letter-spacing: -.08em;
+      font-variant-numeric: tabular-nums;
+      user-select: none;
+      text-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
+    .count.bump { animation: bump .34s cubic-bezier(.2,.9,.25,1.35); }
+    .count.drop { animation: drop .27s cubic-bezier(.2,.8,.25,1.2); }
+    @keyframes bump {
+      0% { transform: scale(.86) translateY(7px); filter: blur(2px); }
+      55% { transform: scale(1.12) translateY(-6px); }
+      100% { transform: scale(1); filter: blur(0); }
+    }
+    @keyframes drop {
+      0% { transform: scale(1.08) translateY(-4px); }
+      100% { transform: scale(1); }
+    }
+
+    .message {
+      margin-top: 18px;
+      min-height: 27px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .combo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--accent);
+      font-weight: 800;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: .2s ease;
+    }
+    .combo.show { opacity: 1; transform: translateY(0); }
+
+    .counter-btn {
+      width: clamp(82px, 17vw, 118px);
+      aspect-ratio: 1;
+      justify-self: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface-strong) 62%, transparent);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: clamp(2.8rem, 7vw, 4.6rem);
+      font-weight: 350;
+      box-shadow: 0 10px 30px rgba(0,0,0,.05), inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .12s ease, box-shadow .18s ease, background .18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .counter-btn:hover { background: var(--surface-strong); box-shadow: 0 16px 38px rgba(0,0,0,.08); }
+    .counter-btn:active { transform: scale(.87); }
+    .counter-btn.plus.flash { animation: plusRing .38s ease; }
+    .counter-btn.minus.flash { animation: minusRing .30s ease; }
+    @keyframes plusRing { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } to { box-shadow: 0 0 0 38px transparent; } }
+    @keyframes minusRing { from { box-shadow: 0 0 0 0 rgba(120,120,120,.24); } to { box-shadow: 0 0 0 28px transparent; } }
+
+    .progress-wrap {
+      border-radius: 18px;
+      padding: 13px 14px;
+      background: color-mix(in srgb, var(--surface-strong) 60%, transparent);
+      border: 1px solid var(--line);
+    }
+    .progress-head { display: flex; justify-content: space-between; color: var(--muted); font-size: .8rem; margin-bottom: 8px; }
+    .track { height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); overflow: hidden; }
+    .bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width: 0%; transition: width .35s cubic-bezier(.2,.8,.2,1); }
+
+    .panel {
+      margin-top: 14px;
+      border-radius: 26px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-head h2 { margin: 0; font-size: .95rem; letter-spacing: .08em; }
+    .panel-sub { color: var(--muted); font-size: .82rem; }
+
+    .log { max-height: 310px; overflow: auto; }
+    .entry {
+      display: grid;
+      grid-template-columns: 66px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--line);
+      animation: slideIn .22s ease;
+    }
+    .entry:last-child { border-bottom: 0; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .delta { font-weight: 800; }
+    .delta.plus { color: var(--good); }
+    .entry-value { font-variant-numeric: tabular-nums; }
+    .time { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+    .empty { padding: 34px 20px; color: var(--muted); text-align: center; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .stat-card {
+      border-radius: 22px;
+      padding: 18px;
+    }
+    .stat-label { color: var(--muted); font-size: .82rem; }
+    .stat-value { margin-top: 5px; font-size: 1.6rem; font-weight: 820; font-variant-numeric: tabular-nums; }
+
+    .heatmap-wrap { padding: 20px; }
+    .heatmap {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 6px;
+    }
+    .day {
+      aspect-ratio: 1;
+      border-radius: 5px;
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+      border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);
+    }
+    .day.l1 { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+    .day.l2 { background: color-mix(in srgb, var(--accent) 42%, transparent); }
+    .day.l3 { background: color-mix(in srgb, var(--accent) 66%, transparent); }
+    .day.l4 { background: var(--accent); }
+    .heat-legend { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: var(--muted); font-size: .78rem; }
+
+    .achievements {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 18px;
+    }
+    .achievement {
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface-strong) 62%, transparent);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      opacity: .48;
+      filter: grayscale(.7);
+    }
+    .achievement.unlocked { opacity: 1; filter: none; }
+    .badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      font-size: 1.4rem;
+      flex: 0 0 auto;
+    }
+    .achievement strong { display: block; }
+    .achievement span { display: block; color: var(--muted); font-size: .82rem; margin-top: 3px; }
+
+    dialog {
+      width: min(92vw, 440px);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: var(--surface-strong);
+      color: var(--text);
+      padding: 0;
+      box-shadow: 0 32px 110px rgba(0,0,0,.28);
+    }
+    dialog::backdrop { background: rgba(0,0,0,.32); backdrop-filter: blur(5px); }
+    .dialog-inner { padding: 24px; }
+    .dialog-inner h3 { margin: 0 0 10px; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-top: 1px solid var(--line); }
+    .switch { width: 50px; height: 29px; border: 0; border-radius: 999px; padding: 3px; background: #a9a9ad; cursor: pointer; }
+    .switch::after { content:""; display:block; width:23px; height:23px; border-radius:50%; background:#fff; transition:transform .2s ease; box-shadow:0 2px 6px rgba(0,0,0,.18); }
+    .switch.on { background: var(--accent); }
+    .switch.on::after { transform: translateX(21px); }
+    .dialog-actions { margin-top: 18px; display:flex; justify-content:flex-end; gap:10px; }
+    .text-btn { border:0; border-radius:12px; padding:10px 13px; background:transparent; cursor:pointer; font-weight:750; }
+    .text-btn.primary { background: var(--text); color: var(--bg); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 20px) scale(.94);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 800;
+      font-size: .9rem;
+      transition: .22s ease;
+      z-index: 40;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%,0) scale(1); }
+
+    .milestone {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      z-index: 30;
+    }
+    .milestone.show { animation: milestoneFade 1.7s ease both; }
+    .milestone-card {
+      background: color-mix(in srgb, var(--text) 95%, transparent);
+      color: var(--bg);
+      border-radius: 28px;
+      padding: 24px 30px;
+      text-align: center;
+      box-shadow: 0 30px 100px rgba(0,0,0,.28);
+    }
+    .milestone strong { display:block; font-size:2.4rem; }
+    .milestone span { display:block; opacity:.78; margin-top:4px; }
+    @keyframes milestoneFade { 0%,100% { opacity:0; } 12%,78% { opacity:1; } }
+
+    #fx { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 25; }
+    .particle {
+      position: absolute;
+      width: 9px; height: 15px;
+      border-radius: 3px;
+      background: var(--accent);
+      animation: fly 1.35s cubic-bezier(.12,.75,.15,1) forwards;
+    }
+    @keyframes fly {
+      from { transform: translate(0,0) rotate(0) scale(1); opacity:1; }
+      to { transform: translate(var(--x),var(--y)) rotate(var(--r)) scale(.6); opacity:0; }
+    }
+
+    @media (max-width: 700px) {
+      .topbar { grid-template-columns: 1fr auto; }
+      .brand { display:none; }
+      .tabs { justify-self: start; }
+      .counter-zone { grid-template-columns: 1fr minmax(130px,180px) 1fr; gap:8px; min-height:330px; }
+      .mini-stats { grid-template-columns: repeat(3, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .achievements { grid-template-columns: 1fr; }
+      .entry { grid-template-columns: 54px 1fr; }
+      .time { grid-column: 2; }
+    }
+
+    @media (max-width: 460px) {
+      .app { padding-left:10px; padding-right:10px; }
+      .tabs { gap:4px; }
+      .tab { padding:8px 10px; font-size:.82rem; }
+      .counter-shell { padding:12px; border-radius:28px; min-height:470px; }
+      .mini-card { padding:10px; }
+      .mini-value { font-size:1rem; }
+      .counter-zone { grid-template-columns: 1fr minmax(100px,150px) 1fr; }
+      .counter-btn { width:76px; }
+      .heatmap { gap:4px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.001ms !important; transition-duration:.001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">Pulse Counter Pro</div>
+      <nav class="tabs" aria-label="App sections">
+        <button class="tab active" data-view="counterView">Counter</button>
+        <button class="tab" data-view="statsView">Stats</button>
+        <button class="tab" data-view="achievementsView">Awards</button>
+      </nav>
+      <div class="top-actions">
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7.1 7.1 0 0 1-9-9Z"/></svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+          <svg viewBox="0 0 24 24"><path d="m19.14 12.94.04-.94-.04-.94 2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.3 7.3 0 0 0-1.62-.94L14.39 2.8A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.71 8.44a.5.5 0 0 0 .12.64l2.03 1.58-.04.94.04.94-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.8a.5.5 0 0 0 .49-.4l.36-2.52a7.3 7.3 0 0 0 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section id="counterView" class="view active">
+      <div class="counter-shell glass">
+        <div class="mini-stats">
+          <div class="mini-card"><div class="mini-label">Today</div><div id="todayMini" class="mini-value">0</div></div>
+          <div class="mini-card"><div class="mini-label">Best streak</div><div id="bestMini" class="mini-value">0</div></div>
+          <div class="mini-card"><div class="mini-label">Total taps</div><div id="tapsMini" class="mini-value">0</div></div>
+        </div>
+
+        <div class="counter-zone">
+          <button id="minusBtn" class="counter-btn minus" aria-label="Subtract one">−</button>
+          <div class="count-wrap">
+            <div id="count" class="count" aria-live="polite">0</div>
+            <div id="message" class="message">Ready when you are.</div>
+            <div id="combo" class="combo">🔥 0 combo</div>
+          </div>
+          <button id="plusBtn" class="counter-btn plus" aria-label="Add one">+</button>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-head"><span>Next celebration</span><span id="progressLabel">0 / 10</span></div>
+          <div class="track"><div id="progressBar" class="bar"></div></div>
+        </div>
+      </div>
+
+      <section class="panel glass">
+        <div class="panel-head">
+          <div><h2>LOG</h2><div class="panel-sub">Every move, timestamped</div></div>
+          <button class="text-btn" id="resetBtn">Reset</button>
+        </div>
+        <div id="log" class="log"></div>
+      </section>
+    </section>
+
+    <section id="statsView" class="view">
+      <div class="stats-grid">
+        <div class="stat-card glass"><div class="stat-label">Current count</div><div id="statCurrent" class="stat-value">0</div></div>
+        <div class="stat-card glass"><div class="stat-label">Highest count</div><div id="statHighest" class="stat-value">0</div></div>
+        <div class="stat-card glass"><div class="stat-label">Total taps</div><div id="statTaps" class="stat-value">0</div></div>
+        <div class="stat-card glass"><div class="stat-label">Milestones</div><div id="statMilestones" class="stat-value">0</div></div>
+      </div>
+
+      <section class="panel glass">
+        <div class="panel-head"><div><h2>ACTIVITY</h2><div class="panel-sub">Last 14 weeks</div></div></div>
+        <div class="heatmap-wrap">
+          <div id="heatmap" class="heatmap"></div>
+          <div class="heat-legend"><span>Less</span><span>More activity →</span></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="achievementsView" class="view">
+      <section class="panel glass" style="margin-top:0">
+        <div class="panel-head"><div><h2>ACHIEVEMENTS</h2><div class="panel-sub">Tiny trophies for absurd commitment</div></div></div>
+        <div id="achievements" class="achievements"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="fx"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="milestone" class="milestone" aria-hidden="true">
+    <div class="milestone-card"><strong id="milestoneTitle">10!</strong><span>Milestone unlocked</span></div>
+  </div>
+
+  <dialog id="settingsDialog">
+    <div class="dialog-inner">
+      <h3>Settings</h3>
+      <div class="setting-row"><span>Sound effects</span><button id="soundToggle" class="switch on" role="switch" aria-checked="true"></button></div>
+      <div class="setting-row"><span>Haptics</span><button id="hapticToggle" class="switch on" role="switch" aria-checked="true"></button></div>
+      <div class="setting-row"><span>Particles</span><button id="particleToggle" class="switch on" role="switch" aria-checked="true"></button></div>
+      <div class="dialog-actions"><button id="closeSettings" class="text-btn primary">Done</button></div>
+    </div>
+  </dialog>
+
+  <script>
+    const initial = {
+      count: 0, log: [], totalTaps: 0, highest: 0, milestones: 0,
+      bestCombo: 0, combo: 0, lastAction: null, unlocked: [],
+      theme: 'light', sound: true, haptics: true, particles: true
+    };
+    const saved = JSON.parse(localStorage.getItem('pulseProState') || '{}');
+    const state = { ...initial, ...saved };
+
+    const $ = id => document.getElementById(id);
+    const countEl = $('count');
+    const plusBtn = $('plusBtn');
+    const minusBtn = $('minusBtn');
+    const logEl = $('log');
+    const comboEl = $('combo');
+    const messageEl = $('message');
+    const fx = $('fx');
+    const toast = $('toast');
+    let audioContext;
+
+    const achievementsList = [
+      { id:'first', icon:'✨', name:'First Spark', desc:'Record your first tap', test:s=>s.totalTaps>=1 },
+      { id:'ten', icon:'🎉', name:'Ten Club', desc:'Reach a multiple of 10', test:s=>s.milestones>=1 },
+      { id:'fifty', icon:'⚡', name:'Fifty Deep', desc:'Reach 50', test:s=>s.highest>=50 },
+      { id:'hundred', icon:'💯', name:'Century', desc:'Reach 100', test:s=>s.highest>=100 },
+      { id:'combo10', icon:'🔥', name:'Locked In', desc:'Build a 10-tap combo', test:s=>s.bestCombo>=10 },
+      { id:'tap250', icon:'🏆', name:'Tap Machine', desc:'Make 250 total taps', test:s=>s.totalTaps>=250 },
+      { id:'negative', icon:'🕳️', name:'Into the Void', desc:'Take the counter below zero', test:s=>s.count<0 || s.log.some(x=>x.value<0) },
+      { id:'night', icon:'🌙', name:'Night Shift', desc:'Use dark mode', test:s=>s.theme==='dark' }
+    ];
+
+    function save() {
+      localStorage.setItem('pulseProState', JSON.stringify({...state, log: state.log.slice(0,500)}));
+    }
+
+    function fmt(ts) {
+      return new Intl.DateTimeFormat(undefined, {
+        month:'short', day:'numeric', year:'numeric',
+        hour:'numeric', minute:'2-digit', second:'2-digit'
+      }).format(new Date(ts));
+    }
+
+    function applyTheme() {
+      document.documentElement.dataset.theme = state.theme;
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', state.theme === 'dark' ? '#0d0d0f' : '#f6f6f3');
+    }
+
+    function todayCount() {
+      const now = new Date();
+      return state.log.filter(e => {
+        const d = new Date(e.time);
+        return d.toDateString() === now.toDateString();
+      }).length;
+    }
+
+    function updateAchievements() {
+      let justUnlocked = [];
+      for (const a of achievementsList) {
+        if (a.test(state) && !state.unlocked.includes(a.id)) {
+          state.unlocked.push(a.id);
+          justUnlocked.push(a);
+        }
+      }
+      if (justUnlocked.length) showToast(`Unlocked: ${justUnlocked[0].name}`);
+    }
+
+    function renderAchievements() {
+      $('achievements').innerHTML = achievementsList.map(a => `
+        <div class="achievement ${state.unlocked.includes(a.id) ? 'unlocked' : ''}">
+          <div class="badge">${a.icon}</div>
+          <div><strong>${a.name}</strong><span>${a.desc}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function renderHeatmap() {
+      const days = 98;
+      const counts = {};
+      for (const e of state.log) {
+        const d = new Date(e.time);
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        counts[key] = (counts[key] || 0) + 1;
+      }
+
+      const cells = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setHours(0,0,0,0);
+        d.setDate(d.getDate() - i);
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        const n = counts[key] || 0;
+        const level = n === 0 ? '' : n < 3 ? 'l1' : n < 8 ? 'l2' : n < 16 ? 'l3' : 'l4';
+        cells.push(`<div class="day ${level}" title="${d.toDateString()}: ${n} taps"></div>`);
+      }
+      $('heatmap').innerHTML = cells.join('');
+    }
+
+    function renderLog() {
+      if (!state.log.length) {
+        logEl.innerHTML = '<div class="empty">Every click gets recorded here.</div>';
+        return;
+      }
+      logEl.innerHTML = state.log.map(e => `
+        <div class="entry">
+          <div class="delta ${e.delta > 0 ? 'plus' : ''}">${e.delta > 0 ? '+1' : '−1'}</div>
+          <div class="entry-value">${e.value}</div>
+          <time class="time">${fmt(e.time)}</time>
+        </div>
+      `).join('');
+    }
+
+    function render() {
+      countEl.textContent = state.count;
+      $('todayMini').textContent = todayCount();
+      $('bestMini').textContent = state.bestCombo;
+      $('tapsMini').textContent = state.totalTaps;
+      $('statCurrent').textContent = state.count;
+      $('statHighest').textContent = state.highest;
+      $('statTaps').textContent = state.totalTaps;
+      $('statMilestones').textContent = state.milestones;
+
+      const mod = ((state.count % 10) + 10) % 10;
+      $('progressBar').style.width = `${mod * 10}%`;
+      $('progressLabel').textContent = `${mod} / 10`;
+
+      comboEl.textContent = `🔥 ${state.combo} combo`;
+      comboEl.classList.toggle('show', state.combo >= 3);
+
+      renderLog();
+      renderHeatmap();
+      renderAchievements();
+      applyTheme();
+    }
+
+    function tone(kind='plus', milestone=false) {
+      if (!state.sound) return;
+      audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = milestone ? 'sine' : kind === 'plus' ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(milestone ? 660 : kind === 'plus' ? 520 : 290, now);
+      osc.frequency.exponentialRampToValueAtTime(milestone ? 980 : kind === 'plus' ? 790 : 220, now + .09);
+      gain.gain.setValueAtTime(.0001, now);
+      gain.gain.exponentialRampToValueAtTime(milestone ? .10 : .065, now + .008);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + .14);
+      osc.connect(gain).connect(audioContext.destination);
+      osc.start(now); osc.stop(now + .15);
+    }
+
+    function buzz(pattern) {
+      if (state.haptics && navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    function animateNumber(kind) {
+      countEl.classList.remove('bump','drop');
+      void countEl.offsetWidth;
+      countEl.classList.add(kind === 'plus' ? 'bump' : 'drop');
+      const btn = kind === 'plus' ? plusBtn : minusBtn;
+      btn.classList.remove('flash');
+      void btn.offsetWidth;
+      btn.classList.add('flash');
+    }
+
+    function burst(btn, amount=12, scale=1) {
+      if (!state.particles) return;
+      const rect = btn.getBoundingClientRect();
+      for (let i=0;i<amount;i++) {
+        const p = document.createElement('i');
+        p.className = 'particle';
+        p.style.left = `${rect.left + rect.width/2}px`;
+        p.style.top = `${rect.top + rect.height/2}px`;
+        p.style.width = `${(5 + Math.random()*6)*scale}px`;
+        p.style.height = `${(6 + Math.random()*10)*scale}px`;
+        p.style.setProperty('--x', `${(Math.random()-.5)*220*scale}px`);
+        p.style.setProperty('--y', `${(-40 - Math.random()*150)*scale}px`);
+        p.style.setProperty('--r', `${Math.random()*800-400}deg`);
+        if (i%3===1) p.style.background='var(--accent-2)';
+        if (i%3===2) p.style.background='var(--good)';
+        fx.appendChild(p);
+        setTimeout(()=>p.remove(),1400);
+      }
+    }
+
+    function fullConfetti() {
+      $('milestoneTitle').textContent = `${state.count}!`;
+      const m = $('milestone');
+      m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
+      burst(plusBtn, 95, 2.6);
+      [0,90,180,280].forEach((t,i)=>setTimeout(()=>tone('plus', true),t));
+      buzz([40,35,70,35,110]);
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.remove('show'); void toast.offsetWidth; toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(()=>toast.classList.remove('show'),1700);
+    }
+
+    function change(delta) {
+      state.count += delta;
+      state.totalTaps++;
+      state.highest = Math.max(state.highest, state.count);
+
+      const action = delta > 0 ? 'plus' : 'minus';
+      state.combo = state.lastAction === action ? state.combo + 1 : 1;
+      state.lastAction = action;
+      state.bestCombo = Math.max(state.bestCombo, state.combo);
+
+      state.log.unshift({delta, value:state.count, time:Date.now()});
+      state.log = state.log.slice(0,500);
+
+      const positiveMilestone = state.count > 0 && state.count % 10 === 0;
+      if (positiveMilestone) state.milestones++;
+
+      const plusPhrases = ['Clean hit.','Momentum.','Tiny win secured.','Keep it rolling.','That felt expensive.','Locked in.'];
+      const minusPhrases = ['Dialed back.','Adjusted.','One step down.','Trimmed.'];
+      const pool = delta > 0 ? plusPhrases : minusPhrases;
+      messageEl.textContent = pool[Math.floor(Math.random()*pool.length)];
+
+      updateAchievements();
+      save();
+      render();
+      animateNumber(action);
+      tone(action);
+      buzz(delta > 0 ? 16 : 10);
+      burst(delta > 0 ? plusBtn : minusBtn, delta > 0 ? 14 : 7, 1);
+
+      if (positiveMilestone) fullConfetti();
+    }
+
+    plusBtn.addEventListener('click',()=>change(1));
+    minusBtn.addEventListener('click',()=>change(-1));
+
+    $('resetBtn').addEventListener('click',()=>{
+      if (!confirm('Reset the count and clear the full log?')) return;
+      Object.assign(state, {...initial, theme:state.theme, sound:state.sound, haptics:state.haptics, particles:state.particles});
+      messageEl.textContent='Fresh slate.';
+      save(); render(); showToast('Counter reset');
+    });
+
+    document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===tab));
+      document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
+    }));
+
+    $('themeBtn').addEventListener('click',()=>{
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      updateAchievements();
+      save(); render();
+    });
+
+    $('settingsBtn').addEventListener('click',()=>$('settingsDialog').showModal());
+    $('closeSettings').addEventListener('click',()=>$('settingsDialog').close());
+
+    function bindToggle(id,key) {
+      const el=$(id);
+      el.classList.toggle('on',state[key]);
+      el.setAttribute('aria-checked',String(state[key]));
+      el.addEventListener('click',()=>{
+        state[key]=!state[key];
+        el.classList.toggle('on',state[key]);
+        el.setAttribute('aria-checked',String(state[key]));
+        save();
+      });
+    }
+    bindToggle('soundToggle','sound');
+    bindToggle('hapticToggle','haptics');
+    bindToggle('particleToggle','particles');
+
+    document.addEventListener('keydown',e=>{
+      if (e.key==='+' || e.key==='=') change(1);
+      if (e.key==='-' || e.key==='_') change(-1);
+    });
+
+    updateAchievements();
+    save();
+    render();
+
+    if ('serviceWorker' in navigator) {
+      addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+    }
+  </script>
+</body>
+</html>
