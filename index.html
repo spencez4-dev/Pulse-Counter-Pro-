@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f6f6f3">
-  <meta name="description" content="A premium, installable counting app with streaks, achievements, stats, heatmap, confetti, and timestamp logs.">
+  <meta name="description" content="An installable shipment load tracker with hourly goals, racecourse progress, stats, and timestamp logs.">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <title>Pulse Counter Pro</title>
+  <title>Load Tracker Pro</title>
   <style>
     :root {
       color-scheme: light;
@@ -451,7 +451,7 @@
     .quick-actions {
       margin-top: 12px;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
     .quick-btn {
@@ -1042,6 +1042,87 @@
       .stable-grid { grid-template-columns: 1fr; }
     }
 
+
+    .sortable-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sortable-section {
+      position: relative;
+    }
+
+    .section-movebar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin: 0 4px 6px;
+    }
+
+    .move-btn,
+    .drag-handle {
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface-strong) 70%, transparent);
+      color: var(--muted);
+      border-radius: 10px;
+      min-width: 34px;
+      height: 32px;
+      padding: 0 10px;
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 800;
+    }
+
+    .drag-handle {
+      cursor: grab;
+      letter-spacing: .08em;
+    }
+
+    .drag-handle:active { cursor: grabbing; }
+
+    .sortable-section.dragging {
+      opacity: .45;
+      transform: scale(.99);
+    }
+
+    .sortable-section.drag-over {
+      outline: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+      outline-offset: 6px;
+      border-radius: 28px;
+    }
+
+    .work-estimate {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .estimate-card {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      padding: 12px 13px;
+      background: color-mix(in srgb, var(--surface-strong) 62%, transparent);
+    }
+
+    .estimate-label {
+      color: var(--muted);
+      font-size: .76rem;
+    }
+
+    .estimate-value {
+      margin-top: 4px;
+      font-size: 1.08rem;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 520px) {
+      .work-estimate { grid-template-columns: 1fr; }
+      .drag-handle { display: none; }
+    }
+
     @media (max-width: 700px) {
       .topbar { grid-template-columns: 1fr auto; }
       .brand { display:none; }
@@ -1074,7 +1155,7 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="brand">Pulse Counter Pro</div>
+      <div class="brand">Load Tracker Pro</div>
       <nav class="tabs" aria-label="App sections">
         <button class="tab active" data-view="counterView">Counter</button>
         <button class="tab" data-view="statsView">Stats</button>
@@ -1095,7 +1176,7 @@
         <div class="mini-stats">
           <div class="mini-card"><div class="mini-label">Today</div><div id="todayMini" class="mini-value">0</div></div>
           <div class="mini-card"><div class="mini-label">Best streak</div><div id="bestMini" class="mini-value">0</div></div>
-          <div class="mini-card"><div class="mini-label">Total taps</div><div id="tapsMini" class="mini-value">0</div></div>
+          <div class="mini-card"><div class="mini-label">Loads tracked</div><div id="tapsMini" class="mini-value">0</div></div>
         </div>
 
 
@@ -1103,6 +1184,22 @@
           <div id="levelBadge" class="level-badge">LVL 1</div>
           <div class="level-track"><div id="levelBar" class="level-bar"></div></div>
           <div id="levelXp" class="level-xp">0 / 25 XP</div>
+        </div>
+
+
+        <div class="work-estimate">
+          <div class="estimate-card">
+            <div class="estimate-label">Loads tracked today</div>
+            <div id="loadsTodayEstimate" class="estimate-value">0</div>
+          </div>
+          <div class="estimate-card">
+            <div class="estimate-label">Estimated update time</div>
+            <div id="timeSpentEstimate" class="estimate-value">0 min</div>
+          </div>
+          <div class="estimate-card">
+            <div class="estimate-label">Hourly pace</div>
+            <div id="hourlyPaceEstimate" class="estimate-value">0 loads</div>
+          </div>
         </div>
 
         <div class="counter-zone">
@@ -1123,17 +1220,15 @@
         </div>
 
         <div class="quick-actions">
-          <button id="minusFiveBtn" class="quick-btn">−5</button>
-          <button id="undoBtn" class="quick-btn">Undo</button>
-          <button id="plusFiveBtn" class="quick-btn accent">+5</button>
-          <button id="goalBtn" class="quick-btn">Goal</button>
+                    <button id="undoBtn" class="quick-btn">Undo</button>
+                    <button id="goalBtn" class="quick-btn">Goal</button>
           <button id="exportBtn" class="quick-btn">Export</button>
         </div>
       </div>
 
       <section class="panel glass">
         <div class="panel-head">
-          <div><h2>LOG</h2><div class="panel-sub">Every move, timestamped</div></div>
+          <div><h2>LOG</h2><div class="panel-sub">Every load update, timestamped</div></div>
           <button class="text-btn" id="resetBtn">Reset</button>
         </div>
         <div id="log" class="log"></div>
@@ -1143,7 +1238,7 @@
         <div class="racecourse-top">
           <div class="racecourse-title">
             <strong>Hourly Racecourse</strong>
-            <span>Get 15 positive counts before the clock hits the next hour.</span>
+            <span>Track 15 loads before the clock hits the next hour.</span>
           </div>
           <div class="racecourse-meta">
             <div id="hourCountdown" class="race-chip">59:59 left</div>
@@ -1169,7 +1264,7 @@
 
         <div class="race-status">
           <div id="raceCount" class="race-count">0 / 15</div>
-          <div id="raceMessage" class="race-copy">The gates are open.</div>
+          <div id="raceMessage" class="race-copy">The load board is open.</div>
           <button id="stableBtn" class="stable-btn">Stable</button>
         </div>
       </section>
@@ -1177,8 +1272,8 @@
 <section class="goal-card glass">
         <div id="goalRing" class="goal-ring"><span id="goalPct">0%</span></div>
         <div class="goal-copy">
-          <strong>Daily goal</strong>
-          <span id="goalText">0 of 50 taps today</span>
+          <strong>Daily load goal</strong>
+          <span id="goalText">0 of 50 loads today</span>
         </div>
         <button id="editGoalBtn" class="text-btn">Edit goal</button>
       </section>
@@ -1186,9 +1281,9 @@
 
     <section id="statsView" class="view">
       <div class="stats-grid">
-        <div class="stat-card glass"><div class="stat-label">Current count</div><div id="statCurrent" class="stat-value">0</div></div>
-        <div class="stat-card glass"><div class="stat-label">Highest count</div><div id="statHighest" class="stat-value">0</div></div>
-        <div class="stat-card glass"><div class="stat-label">Total taps</div><div id="statTaps" class="stat-value">0</div></div>
+        <div class="stat-card glass"><div class="stat-label">Current loads</div><div id="statCurrent" class="stat-value">0</div></div>
+        <div class="stat-card glass"><div class="stat-label">Highest load count</div><div id="statHighest" class="stat-value">0</div></div>
+        <div class="stat-card glass"><div class="stat-label">Loads tracked</div><div id="statTaps" class="stat-value">0</div></div>
         <div class="stat-card glass"><div class="stat-label">Milestones</div><div id="statMilestones" class="stat-value">0</div></div>
       </div>
 
@@ -1235,7 +1330,7 @@
       <div class="setting-row"><span>Sound effects</span><button id="soundToggle" class="switch on" role="switch" aria-checked="true"></button></div>
       <div class="setting-row"><span>Haptics</span><button id="hapticToggle" class="switch on" role="switch" aria-checked="true"></button></div>
       <div class="setting-row"><span>Particles</span><button id="particleToggle" class="switch on" role="switch" aria-checked="true"></button></div>
-      <div class="setting-row"><span>Daily goal</span><input id="goalInput" class="field-input" type="number" min="1" max="10000" step="1"></div>
+      <div class="setting-row"><span>Daily load goal</span><input id="goalInput" class="field-input" type="number" min="1" max="10000" step="1"></div>
       <div class="setting-row"><span>Import backup</span><button id="importBtn" class="text-btn">Choose file</button></div>
       <input id="importInput" type="file" accept="application/json" hidden>
 
@@ -1265,12 +1360,12 @@
     let audioContext;
 
     const achievementsList = [
-      { id:'first', icon:'✨', name:'First Spark', desc:'Record your first tap', test:s=>s.totalTaps>=1 },
+      { id:'first', icon:'✨', name:'First Spark', desc:'Track your first load', test:s=>s.totalTaps>=1 },
       { id:'ten', icon:'🎉', name:'Ten Club', desc:'Reach a multiple of 10', test:s=>s.milestones>=1 },
       { id:'fifty', icon:'⚡', name:'Fifty Deep', desc:'Reach 50', test:s=>s.highest>=50 },
       { id:'hundred', icon:'💯', name:'Century', desc:'Reach 100', test:s=>s.highest>=100 },
-      { id:'combo10', icon:'🔥', name:'Locked In', desc:'Build a 10-tap combo', test:s=>s.bestCombo>=10 },
-      { id:'tap250', icon:'🏆', name:'Tap Machine', desc:'Make 250 total taps', test:s=>s.totalTaps>=250 },
+      { id:'combo10', icon:'🔥', name:'Locked In', desc:'Build a 10-load streak', test:s=>s.bestCombo>=10 },
+      { id:'tap250', icon:'🏆', name:'Load Machine', desc:'Make 250 loads tracked', test:s=>s.totalTaps>=250 },
       { id:'negative', icon:'🕳️', name:'Into the Void', desc:'Take the counter below zero', test:s=>s.count<0 || s.log.some(x=>x.value<0) },
       { id:'night', icon:'🌙', name:'Night Shift', desc:'Use dark mode', test:s=>s.theme==='dark' }
     ];
@@ -1350,7 +1445,7 @@
 
     function renderLog() {
       if (!state.log.length) {
-        logEl.innerHTML = '<div class="empty">Every click gets recorded here.</div>';
+        logEl.innerHTML = '<div class="empty">Every load update gets recorded here.</div>';
         return;
       }
       logEl.innerHTML = state.log.map(e => `
@@ -1474,7 +1569,7 @@
       fullConfetti();
       horseSparkBurst?.();
       dustBurst(20);
-      showToast(`Race won — ${state.raceWins} total`);
+      showToast(`Hourly load goal cleared — ${state.raceWins} total`);
       renderStable();
     }
 
@@ -1500,7 +1595,7 @@
       } else if (count > 0) {
         $('raceMessage').textContent = `${HOURLY_GOAL-count} left — off to the races.`;
       } else {
-        $('raceMessage').textContent = 'The gates are open.';
+        $('raceMessage').textContent = 'The load board is open.';
       }
 
       if (allowCelebration) {
@@ -1538,11 +1633,18 @@
       $('levelXp').textContent = `${lvl.intoLevel} / ${lvl.needed} XP`;
 
       const today = todayCount();
+      const totalMinutes = today * 5;
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      $('loadsTodayEstimate').textContent = today;
+      $('timeSpentEstimate').textContent = hours ? `${hours}h ${mins}m` : `${mins} min`;
+      $('hourlyPaceEstimate').textContent = `${Math.min(HOURLY_GOAL, hourlyPositiveCount())} loads`;
+
       const goal = Math.max(1, Number(state.dailyGoal) || 50);
       const pct = Math.min(100, Math.round((today / goal) * 100));
       $('goalRing').style.setProperty('--pct', pct);
       $('goalPct').textContent = `${pct}%`;
-      $('goalText').textContent = `${today} of ${goal} taps today`;
+      $('goalText').textContent = `${today} of ${goal} loads today`;
       $('goalInput').value = goal;
 
       const mod = ((state.count % 10) + 10) % 10;
@@ -1752,8 +1854,8 @@
       const positiveMilestone = state.count > 0 && state.count % 10 === 0;
       if (positiveMilestone) state.milestones++;
 
-      const plusPhrases = ['Clean hit.','Momentum.','Tiny win secured.','Keep it rolling.','That felt expensive.','Locked in.'];
-      const minusPhrases = ['Dialed back.','Adjusted.','One step down.','Trimmed.'];
+      const plusPhrases = ['Clean hit.','Momentum.','Load secured.','Keep it rolling.','Driver updated.','Locked in.'];
+      const minusPhrases = ['Dialed back.','Adjusted.','Load removed.','Trimmed.'];
       const pool = delta > 0 ? plusPhrases : minusPhrases;
       messageEl.textContent = pool[Math.floor(Math.random()*pool.length)];
 
@@ -1770,9 +1872,9 @@
       specialCelebration();
 
       if (todayCount() === Number(state.dailyGoal)) {
-        flashWord('GOAL CRUSHED.');
+        flashWord('LOAD GOAL CRUSHED.');
         fullConfetti();
-        showToast('Daily goal complete');
+        showToast('Daily load goal complete');
       }
     }
 
@@ -1781,18 +1883,16 @@
     bindHold(plusBtn, 1);
     bindHold(minusBtn, -1);
 
-    $('plusFiveBtn').addEventListener('click',()=>change(5));
-    $('minusFiveBtn').addEventListener('click',()=>change(-5));
     $('undoBtn').addEventListener('click',undoLast);
     $('exportBtn').addEventListener('click',exportBackup);
     $('goalBtn').addEventListener('click',()=>$('settingsDialog').showModal());
     $('editGoalBtn').addEventListener('click',()=>$('settingsDialog').showModal());
 
     $('resetBtn').addEventListener('click',()=>{
-      if (!confirm('Reset the count and clear the full log?')) return;
+      if (!confirm('Reset the load count and clear the full log?')) return;
       Object.assign(state, {...initial, theme:state.theme, sound:state.sound, haptics:state.haptics, particles:state.particles});
       messageEl.textContent='Fresh slate.';
-      save(); render(); showToast('Counter reset');
+      save(); render(); showToast('Load count reset');
     });
 
     document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{
@@ -1859,10 +1959,99 @@
       }
     });
 
+
+    function saveSectionOrder() {
+      const order = [...document.querySelectorAll('#sortableStack .sortable-section')]
+        .map(section => section.dataset.sectionId);
+      localStorage.setItem('pulseSectionOrder', JSON.stringify(order));
+    }
+
+    function restoreSectionOrder() {
+      const stack = $('sortableStack');
+      if (!stack) return;
+      const savedOrder = JSON.parse(localStorage.getItem('pulseSectionOrder') || '[]');
+      savedOrder.forEach(id => {
+        const section = stack.querySelector(`[data-section-id="${id}"]`);
+        if (section) stack.appendChild(section);
+      });
+    }
+
+    function moveSection(section, direction) {
+      if (!section) return;
+      if (direction < 0 && section.previousElementSibling) {
+        section.parentElement.insertBefore(section, section.previousElementSibling);
+      } else if (direction > 0 && section.nextElementSibling) {
+        section.parentElement.insertBefore(section.nextElementSibling, section);
+      }
+      saveSectionOrder();
+    }
+
+    function setupSectionSorting() {
+      const stack = $('sortableStack');
+      if (!stack) return;
+
+      restoreSectionOrder();
+
+      stack.querySelectorAll('.sortable-section').forEach(section => {
+        section.querySelector('.move-up')?.addEventListener('click', () => moveSection(section, -1));
+        section.querySelector('.move-down')?.addEventListener('click', () => moveSection(section, 1));
+
+        section.addEventListener('dragstart', event => {
+          if (!event.target.closest('.drag-handle') && event.pointerType !== 'mouse') {
+            event.preventDefault();
+            return;
+          }
+          section.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', section.dataset.sectionId);
+        });
+
+        section.addEventListener('dragend', () => {
+          section.classList.remove('dragging');
+          stack.querySelectorAll('.sortable-section').forEach(item => item.classList.remove('drag-over'));
+          saveSectionOrder();
+        });
+
+        section.addEventListener('dragover', event => {
+          event.preventDefault();
+          if (!section.classList.contains('dragging')) section.classList.add('drag-over');
+        });
+
+        section.addEventListener('dragleave', () => section.classList.remove('drag-over'));
+
+        section.addEventListener('drop', event => {
+          event.preventDefault();
+          section.classList.remove('drag-over');
+          const draggedId = event.dataTransfer.getData('text/plain');
+          const dragged = stack.querySelector(`[data-section-id="${draggedId}"]`);
+          if (!dragged || dragged === section) return;
+
+          const rect = section.getBoundingClientRect();
+          const before = event.clientY < rect.top + rect.height / 2;
+          stack.insertBefore(dragged, before ? section : section.nextElementSibling);
+          saveSectionOrder();
+        });
+      });
+    }
+
+
+    document.addEventListener('pointerdown', event => {
+      const handle = event.target.closest('.drag-handle');
+      if (!handle) return;
+      const section = handle.closest('.sortable-section');
+      if (section) section.setAttribute('draggable', 'true');
+    });
+
+    document.addEventListener('pointerup', event => {
+      const section = event.target.closest('.sortable-section');
+      if (section) section.setAttribute('draggable', 'true');
+    });
+
     updateAchievements();
     renderStable();
     save();
     render();
+    setupSectionSorting();
     lastRenderedHourKey = currentHourKey();
     tickHourlyChallenge();
     setInterval(tickHourlyChallenge, 1000);

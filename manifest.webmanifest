@@ -1,7 +1,7 @@
 {
-  "name": "Pulse Counter Pro",
-  "short_name": "Pulse",
-  "description": "A premium counter with streaks, awards, stats, heatmap, confetti, and timestamp logs.",
+  "name": "Load Tracker Pro",
+  "short_name": "Loads",
+  "description": "A shipment load tracker with hourly goals, racecourse progress, stats, and timestamp logs.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
